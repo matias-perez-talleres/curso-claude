@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VINYLUX — Elegí tu estilo</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background-color: #0a0a0f;
+      background-image:
+        radial-gradient(ellipse at 20% 50%, rgba(80, 40, 120, 0.15) 0%, transparent 60%),
+        radial-gradient(ellipse at 80% 50%, rgba(0, 180, 200, 0.08) 0%, transparent 60%),
+        url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem 1rem;
+      font-family: 'Rajdhani', sans-serif;
+      color: #e8e0d0;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 3.5rem;
+    }
+
+    .logo {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(3rem, 10vw, 6rem);
+      letter-spacing: 0.08em;
+      background: linear-gradient(90deg, #fff 0%, #c084fc 40%, #22d3ee 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      line-height: 1;
+    }
+
+    .subtitle {
+      font-size: 1rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: rgba(232, 224, 208, 0.4);
+      margin-top: 0.5rem;
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 2rem;
+      width: 100%;
+      max-width: 780px;
+    }
+
+    .card {
+      position: relative;
+      border-radius: 16px;
+      padding: 2.5rem 2rem 2rem;
+      text-decoration: none;
+      color: inherit;
+      overflow: hidden;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1.5rem;
+    }
+
+    .card:hover {
+      transform: translateY(-6px);
+    }
+
+    /* Variante Clásico */
+    .card-classic {
+      background: linear-gradient(145deg, #2a1a0e 0%, #1a0d06 100%);
+      border: 1px solid rgba(180, 120, 50, 0.3);
+      box-shadow: 0 8px 40px rgba(120, 60, 10, 0.3);
+    }
+
+    .card-classic:hover {
+      box-shadow: 0 16px 60px rgba(160, 90, 20, 0.4);
+    }
+
+    /* Variante Neon */
+    .card-neon {
+      background: linear-gradient(145deg, #080d12 0%, #040810 100%);
+      border: 1px solid rgba(0, 200, 230, 0.25);
+      box-shadow: 0 8px 40px rgba(0, 180, 210, 0.15);
+    }
+
+    .card-neon:hover {
+      box-shadow: 0 16px 60px rgba(0, 200, 230, 0.3);
+    }
+
+    /* LED superior neon */
+    .card-neon::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 10%;
+      width: 80%;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, #00d4e8, #00ffee, #00d4e8, transparent);
+      animation: led-pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes led-pulse {
+      0%, 100% { opacity: 0.6; }
+      50% { opacity: 1; }
+    }
+
+    /* Disco vinilo */
+    .disc {
+      width: 130px;
+      height: 130px;
+      border-radius: 50%;
+      position: relative;
+      animation: none;
+      transition: animation 0.3s;
+    }
+
+    .card:hover .disc {
+      animation: spin 3s linear infinite;
+    }
+
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    .disc-classic {
+      background:
+        radial-gradient(circle at center, #4a1a6e 0%, #2a0d40 18%, #111 19%, #1a1a1a 30%, #111 31%, #222 50%, #111 51%, #1a1a1a 70%, #111 71%, #1a1a1a 100%);
+      box-shadow: 0 0 30px rgba(120, 50, 180, 0.3), inset 0 0 20px rgba(0,0,0,0.5);
+    }
+
+    .disc-neon {
+      background:
+        radial-gradient(circle at center, #003a4a 0%, #001a22 18%, #0a0a0a 19%, #111 30%, #0a0a0a 31%, #151515 50%, #0a0a0a 51%, #111 70%, #0a0a0a 71%, #151515 100%);
+      box-shadow: 0 0 30px rgba(0, 200, 230, 0.25), inset 0 0 20px rgba(0,0,0,0.6);
+    }
+
+    .disc::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: #1a1a1a;
+      border: 2px solid rgba(255,255,255,0.1);
+    }
+
+    .card-text {
+      text-align: center;
+    }
+
+    .card-tag {
+      font-size: 0.7rem;
+      letter-spacing: 0.35em;
+      text-transform: uppercase;
+      margin-bottom: 0.4rem;
+    }
+
+    .card-classic .card-tag { color: rgba(200, 140, 60, 0.7); }
+    .card-neon .card-tag { color: rgba(0, 200, 230, 0.6); }
+
+    .card-name {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 2rem;
+      letter-spacing: 0.05em;
+      line-height: 1;
+    }
+
+    .card-classic .card-name { color: #d4a060; }
+    .card-neon .card-name { color: #00d4e8; }
+
+    .card-desc {
+      font-size: 0.85rem;
+      color: rgba(232, 224, 208, 0.45);
+      letter-spacing: 0.05em;
+      margin-top: 0.3rem;
+    }
+
+    .card-btn {
+      display: inline-block;
+      padding: 0.5rem 1.5rem;
+      border-radius: 999px;
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      transition: opacity 0.2s;
+    }
+
+    .card-classic .card-btn {
+      background: rgba(180, 110, 40, 0.2);
+      border: 1px solid rgba(180, 110, 40, 0.5);
+      color: #d4a060;
+    }
+
+    .card-neon .card-btn {
+      background: rgba(0, 200, 230, 0.1);
+      border: 1px solid rgba(0, 200, 230, 0.4);
+      color: #00d4e8;
+    }
+
+    .card:hover .card-btn { opacity: 0.8; }
+
+    footer {
+      margin-top: 3rem;
+      font-size: 0.7rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: rgba(232, 224, 208, 0.18);
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="logo">VINYLUX</div>
+    <p class="subtitle">Elegí tu estilo</p>
+  </header>
+
+  <div class="cards">
+
+    <a href="tocadiscos.html" class="card card-classic">
+      <div class="disc disc-classic"></div>
+      <div class="card-text">
+        <p class="card-tag">Variante 01</p>
+        <p class="card-name">Clásico</p>
+        <p class="card-desc">Madera cálida · Tonos ámbar · Estética analógica</p>
+      </div>
+      <span class="card-btn">Abrir</span>
+    </a>
+
+    <a href="tocadiscos-neon.html" class="card card-neon">
+      <div class="disc disc-neon"></div>
+      <div class="card-text">
+        <p class="card-tag">Variante 02</p>
+        <p class="card-name">VALTRON Neon</p>
+        <p class="card-desc">Negro mate · Acentos cyan · Estética futurista</p>
+      </div>
+      <span class="card-btn">Abrir</span>
+    </a>
+
+  </div>
+
+  <footer>VINYLUX · Dos variantes · Un sonido</footer>
+
+</body>
+</html>
