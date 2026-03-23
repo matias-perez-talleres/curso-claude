@@ -1,0 +1,940 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vinylux — Tocadiscos</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  min-height: 100vh;
+  background: radial-gradient(ellipse at 50% 25%, #1e1245 0%, #0a0718 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  user-select: none;
+}
+
+.app {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* ═══════════════════ CABINET ═══════════════════ */
+.cabinet {
+  width: 580px;
+  height: 370px;
+  position: relative;
+  overflow: hidden;
+  border-radius: 18px 18px 4px 4px;
+  background: linear-gradient(158deg, #5a3820 0%, #3a2010 50%, #231208 100%);
+  border: 2px solid #6b4428;
+  box-shadow:
+    0 30px 90px rgba(0,0,0,0.97),
+    inset 0 1px 0 rgba(255,200,120,0.18),
+    inset 0 -4px 8px rgba(0,0,0,0.6);
+  transition: box-shadow 0.7s ease;
+}
+.cabinet.playing {
+  box-shadow:
+    0 30px 90px rgba(0,0,0,0.97),
+    0 0 50px rgba(139,92,246,0.22),
+    inset 0 1px 0 rgba(255,200,120,0.18),
+    inset 0 -4px 8px rgba(0,0,0,0.6);
+}
+/* wood grain lines */
+.cabinet::before {
+  content: '';
+  position: absolute; inset: 0;
+  border-radius: inherit;
+  background: repeating-linear-gradient(
+    94deg,
+    transparent 0, transparent 14px,
+    rgba(0,0,0,0.07) 14px, rgba(0,0,0,0.07) 15px
+  );
+  pointer-events: none;
+  z-index: 25;
+}
+/* top sheen */
+.cabinet::after {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0;
+  height: 45%;
+  background: linear-gradient(to bottom, rgba(255,255,255,0.055), transparent);
+  border-radius: 18px 18px 0 0;
+  pointer-events: none;
+  z-index: 25;
+}
+
+.brand {
+  position: absolute;
+  top: 15px; left: 22px;
+  font-size: 11px;
+  letter-spacing: 5px;
+  color: rgba(255,205,110,0.38);
+  font-style: italic;
+  z-index: 30;
+  text-transform: uppercase;
+}
+.model-text {
+  position: absolute;
+  top: 30px; left: 23px;
+  font-size: 8px;
+  letter-spacing: 2px;
+  color: rgba(255,205,110,0.18);
+  z-index: 30;
+  text-transform: uppercase;
+}
+
+/* status LED */
+.led {
+  position: absolute;
+  top: 17px; right: 20px;
+  width: 9px; height: 9px;
+  border-radius: 50%;
+  background: #1a1010;
+  z-index: 30;
+  box-shadow: inset 0 1px 2px rgba(0,0,0,0.9);
+  transition: background 0.35s, box-shadow 0.35s;
+}
+.led.on {
+  background: #4ade80;
+  box-shadow: 0 0 12px rgba(74,222,128,0.95), 0 0 5px rgba(74,222,128,0.6);
+}
+
+/* decorative hinges */
+.hinge {
+  position: absolute;
+  top: 7px;
+  width: 38px; height: 5px;
+  background: linear-gradient(to bottom, #7a6040, #3a2810);
+  border-radius: 3px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.6);
+  z-index: 30;
+}
+.hinge-l { left: 110px; }
+.hinge-r { left: 350px; }
+
+/* ═══════════════════ PLATTER ═══════════════════ */
+/* center at x=215, y=193 → left=215-141=74, top=193-141=52 */
+.platter {
+  position: absolute;
+  width: 282px; height: 282px;
+  border-radius: 50%;
+  left: 74px; top: 52px;
+  background: radial-gradient(circle at 42% 38%, #3a3a3a 0%, #1c1c1c 55%, #101010 100%);
+  box-shadow:
+    0 12px 45px rgba(0,0,0,0.95),
+    inset 0 0 0 5px rgba(255,255,255,0.035),
+    inset 0 2px 5px rgba(255,255,255,0.06);
+  z-index: 2;
+}
+
+/* ═══════════════════ VINYL ═══════════════════ */
+/* 12px inset from platter edge */
+.vinyl {
+  position: absolute;
+  width: 258px; height: 258px;
+  border-radius: 50%;
+  left: 12px; top: 12px;
+  background:
+    repeating-radial-gradient(circle at center,
+      #0c0c0c 0px, #0c0c0c 2px,
+      #181818 2px, #181818 3px
+    );
+  animation: vinylSpin 1.85s linear infinite;
+  animation-play-state: paused;
+  z-index: 3;
+}
+/* subtle sheen on vinyl */
+.vinyl::before {
+  content: '';
+  position: absolute; inset: 0; border-radius: 50%;
+  background: radial-gradient(circle at 34% 28%,
+    rgba(255,255,255,0.08) 0%, transparent 55%);
+  pointer-events: none;
+  z-index: 1;
+}
+
+@keyframes vinylSpin {
+  to { transform: rotate(360deg); }
+}
+
+/* vinyl label */
+.vinyl-label {
+  position: absolute;
+  width: 30%; height: 30%;
+  border-radius: 50%;
+  top: 50%; left: 50%;
+  transform: translate(-50%,-50%);
+  background: conic-gradient(
+    #7C3AED 0deg, #5B21B6 55deg,
+    #9333EA 115deg, #7C3AED 180deg,
+    #6D28D9 240deg, #8B5CF6 305deg,
+    #7C3AED 360deg
+  );
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 4px;
+  overflow: hidden;
+  z-index: 4;
+}
+.label-title {
+  font-size: 5.5px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.95);
+  max-width: 92%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  line-height: 1.5;
+}
+.label-brand {
+  font-size: 4px;
+  letter-spacing: 1.5px;
+  color: rgba(255,255,255,0.45);
+  margin-top: 2px;
+  text-transform: uppercase;
+}
+
+/* spindle hole */
+.spindle {
+  position: absolute;
+  width: 7px; height: 7px; border-radius: 50%;
+  top: 50%; left: 50%;
+  transform: translate(-50%,-50%);
+  background: radial-gradient(circle, #2a2a2a, #090909);
+  z-index: 5;
+  box-shadow: inset 0 1px 3px rgba(0,0,0,1);
+}
+
+/* ═══════════════════ TONEARM ═══════════════════ */
+/*
+  Record center:  x=215,  y=193  (relative to cabinet)
+  Record outer radius: 129px
+  Record right edge:   x=344
+
+  Tonearm pivot center: x=424, y=62
+  Arm element: left=416 (424-8), top=62, width=16px, height=162px
+  transform-origin: 50% 0%  (rotate around top-center = pivot)
+
+  REST (rotate 22°):
+    needle ≈ (424 + 162*sin22°, 62 + 162*cos22°) = (424+61, 62+150) = (485, 212) → outside record ✓
+
+  PLAY (rotate -35°):
+    needle ≈ (424 + 162*sin(-35°), 62 + 162*cos(-35°)) = (424-93, 62+133) = (331, 195) → outer groove ✓
+*/
+.tonearm-pivot {
+  position: absolute;
+  width: 22px; height: 22px; border-radius: 50%;
+  left: 413px; top: 51px;   /* center at (424, 62) */
+  background: radial-gradient(circle at 38% 32%, #ddd 0%, #999 45%, #555 100%);
+  box-shadow:
+    0 5px 10px rgba(0,0,0,0.85),
+    inset 0 1px 2px rgba(255,255,255,0.35);
+  z-index: 10;
+}
+/* small screw detail on pivot */
+.tonearm-pivot::after {
+  content: '';
+  position: absolute;
+  width: 6px; height: 6px; border-radius: 50%;
+  top: 50%; left: 50%;
+  transform: translate(-50%,-50%);
+  background: radial-gradient(circle, #888, #444);
+  box-shadow: inset 0 1px 2px rgba(0,0,0,0.7);
+}
+
+.tonearm {
+  position: absolute;
+  left: 416px; top: 62px;   /* top-center aligns with pivot */
+  width: 16px; height: 162px;
+  transform-origin: 50% 0%;
+  transform: rotate(-35deg);
+  transition: transform 0.9s cubic-bezier(0.38, 0.02, 0.18, 1.0);
+  z-index: 9;
+}
+.tonearm.playing {
+  transform: rotate(22deg);
+}
+
+/* main arm tube */
+.arm-tube {
+  position: absolute;
+  left: 50%; top: 0;
+  transform: translateX(-50%);
+  width: 7px; height: 125px;
+  background: linear-gradient(to right,
+    #6a6a6a 0%, #c8c8c8 35%, #e0e0e0 50%, #b0b0b0 65%, #606060 100%);
+  border-radius: 3.5px 3.5px 1px 1px;
+  box-shadow: 2px 2px 8px rgba(0,0,0,0.7);
+}
+/* arm tube highlight */
+.arm-tube::after {
+  content: '';
+  position: absolute;
+  left: 20%; top: 5%;
+  width: 20%; height: 70%;
+  background: rgba(255,255,255,0.18);
+  border-radius: 2px;
+}
+
+/* headshell: extends perpendicular (to the left) near the bottom */
+.arm-headshell {
+  position: absolute;
+  bottom: 28px;
+  left: 50%;
+  /* extends to the left */
+  transform: translateX(-88%);
+  width: 34px; height: 9px;
+  background: linear-gradient(to bottom, #c8c8c8 0%, #9a9a9a 100%);
+  border-radius: 3px 5px 5px 2px;
+  box-shadow: 0 3px 7px rgba(0,0,0,0.7);
+}
+.arm-headshell::after {
+  content: '';
+  position: absolute;
+  top: 1px; left: 3px;
+  width: 60%; height: 3px;
+  background: rgba(255,255,255,0.25);
+  border-radius: 1px;
+}
+
+/* cartridge body */
+.arm-cartridge {
+  position: absolute;
+  bottom: 15px;
+  left: 50%;
+  transform: translateX(-140%);
+  width: 13px; height: 12px;
+  background: linear-gradient(to bottom, #3a3a3a, #222);
+  border-radius: 1px 1px 3px 3px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.8);
+}
+
+/* needle (stylus) */
+.arm-needle {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-140%);
+  width: 2px; height: 17px;
+  background: linear-gradient(to bottom, #aaa, #e8e8e8);
+  border-radius: 0 0 1px 1px;
+}
+
+/* ═══════════════════ DECORATIVE KNOBS ═══════════════════ */
+.knob {
+  position: absolute;
+  border-radius: 50%;
+  background: radial-gradient(circle at 36% 30%, #484848 0%, #161616 100%);
+  box-shadow:
+    0 5px 10px rgba(0,0,0,0.85),
+    inset 0 1px 2px rgba(255,255,255,0.09);
+  z-index: 8;
+}
+.knob::before {
+  content: '';
+  position: absolute;
+  top: 18%; left: 50%;
+  transform: translateX(-50%);
+  width: 2px; height: 28%;
+  background: rgba(200,200,200,0.55);
+  border-radius: 1px;
+}
+.knob::after {
+  content: attr(data-label);
+  position: absolute;
+  bottom: -16px; left: 50%;
+  transform: translateX(-50%);
+  font-size: 8px;
+  letter-spacing: 1px;
+  color: rgba(255,200,100,0.28);
+  white-space: nowrap;
+  text-transform: uppercase;
+}
+.knob-speed  { width: 38px; height: 38px; right: 100px; bottom: 26px; }
+.knob-tone   { width: 32px; height: 32px; right: 50px;  bottom: 28px; }
+.knob-bass   { width: 28px; height: 28px; right: 155px; bottom: 30px; }
+
+/* ═══════════════════ CONTROLS PANEL ═══════════════════ */
+.controls {
+  width: 580px;
+  background: linear-gradient(to bottom, #130e1e, #0d0b18);
+  border-radius: 0 0 18px 18px;
+  padding: 18px 22px 22px;
+  border: 2px solid #231840;
+  border-top: none;
+  box-shadow: 0 25px 70px rgba(0,0,0,0.85);
+}
+
+/* track info */
+.track-info {
+  text-align: center;
+  margin-bottom: 13px;
+}
+.track-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: #f0eeff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+.track-artist {
+  font-size: 12px;
+  color: #6a5d90;
+  margin-top: 3px;
+}
+
+/* progress bar */
+.progress-wrap {
+  position: relative;
+  height: 5px;
+  background: #241d38;
+  border-radius: 3px;
+  cursor: pointer;
+  margin-bottom: 5px;
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(to right, #7C3AED, #EC4899);
+  border-radius: 3px;
+  width: 0%;
+  pointer-events: none;
+  transition: width 0.2s linear;
+}
+.progress-times {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: #4a4060;
+  margin-bottom: 13px;
+}
+
+/* control buttons */
+.btn-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 13px;
+}
+.btn {
+  background: none;
+  border: none;
+  color: #7060a0;
+  cursor: pointer;
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px;
+  transition: color 0.15s, background 0.15s, transform 0.1s;
+}
+.btn:hover { color: #c090f0; background: rgba(139,92,246,0.13); }
+.btn:active { transform: scale(0.9); }
+
+.btn-play {
+  width: 54px; height: 54px;
+  font-size: 21px;
+  background: linear-gradient(135deg, #7C3AED, #C026D3);
+  color: #fff;
+  box-shadow: 0 4px 22px rgba(124,58,237,0.55);
+}
+.btn-play:hover {
+  color: #fff;
+  background: linear-gradient(135deg, #6D28D9, #a21caf);
+  box-shadow: 0 6px 28px rgba(124,58,237,0.75);
+  transform: scale(1.05);
+}
+
+/* volume */
+.vol-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 15px;
+  font-size: 14px;
+  color: #4a4060;
+}
+input[type=range].vol {
+  -webkit-appearance: none;
+  width: 130px; height: 4px;
+  background: #241d38;
+  border-radius: 2px;
+  outline: none;
+  cursor: pointer;
+}
+input[type=range].vol::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 13px; height: 13px;
+  border-radius: 50%;
+  background: #8B5CF6;
+  cursor: pointer;
+  box-shadow: 0 0 8px rgba(139,92,246,0.65);
+}
+
+/* source section */
+.src-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 11px;
+}
+.src-tab {
+  padding: 5px 14px;
+  border-radius: 14px;
+  border: 1px solid #241d38;
+  background: none;
+  color: #5a4880;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.src-tab.active {
+  background: rgba(139,92,246,0.18);
+  border-color: #7C3AED;
+  color: #c0a8f0;
+}
+.src-pane { display: none; }
+.src-pane.active {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.url-input {
+  flex: 1;
+  min-width: 0;
+  background: #181328;
+  border: 1px solid #241d38;
+  color: #e0d8ff;
+  padding: 7px 11px;
+  border-radius: 8px;
+  font-size: 12px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.url-input:focus { border-color: #7C3AED; }
+.url-input::placeholder { color: #3a3058; }
+
+.action-btn {
+  padding: 7px 14px;
+  background: rgba(139,92,246,0.22);
+  border: 1px solid #7C3AED;
+  color: #c0a8f0;
+  border-radius: 8px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background 0.2s;
+  white-space: nowrap;
+}
+.action-btn:hover { background: rgba(139,92,246,0.38); }
+
+.file-lbl { font-size: 11px; color: #3a3058; }
+
+/* playlist */
+.playlist {
+  max-height: 115px;
+  overflow-y: auto;
+  margin-top: 10px;
+  scrollbar-width: thin;
+  scrollbar-color: #3a2860 transparent;
+}
+.playlist::-webkit-scrollbar { width: 3px; }
+.playlist::-webkit-scrollbar-thumb { background: #3a2860; border-radius: 2px; }
+
+.pl-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 11px;
+  color: #6a5888;
+  transition: background 0.15s, color 0.15s;
+}
+.pl-item:hover { background: rgba(139,92,246,0.1); color: #c0a8f0; }
+.pl-item.active { background: rgba(139,92,246,0.18); color: #a888e0; }
+.pl-num { width: 18px; text-align: right; color: #3a3058; flex-shrink: 0; }
+.pl-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; }
+.pl-dur { margin-left: auto; flex-shrink: 0; color: #3a3058; }
+
+/* error toast */
+.toast {
+  position: fixed;
+  bottom: 28px; left: 50%;
+  transform: translateX(-50%) translateY(80px);
+  background: rgba(220, 38, 38, 0.9);
+  color: #fff;
+  padding: 10px 20px;
+  border-radius: 10px;
+  font-size: 13px;
+  backdrop-filter: blur(8px);
+  transition: transform 0.35s;
+  z-index: 999;
+  pointer-events: none;
+}
+.toast.visible { transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- ═══ CABINET ═══ -->
+  <div class="cabinet" id="cabinet">
+    <div class="brand">Vinylux</div>
+    <div class="model-text">Stereo Turntable</div>
+    <div class="led" id="led"></div>
+
+    <div class="hinge hinge-l"></div>
+    <div class="hinge hinge-r"></div>
+
+    <!-- Platter + Vinyl -->
+    <div class="platter">
+      <div class="vinyl" id="vinyl">
+        <div class="vinyl-label" id="vinylLabel">
+          <div class="label-title" id="labelTitle">Sin pista</div>
+          <div class="label-brand">Vinylux</div>
+        </div>
+        <div class="spindle"></div>
+      </div>
+    </div>
+
+    <!-- Tonearm -->
+    <div class="tonearm-pivot"></div>
+    <div class="tonearm" id="tonearm">
+      <div class="arm-tube"></div>
+      <div class="arm-headshell"></div>
+      <div class="arm-cartridge"></div>
+      <div class="arm-needle"></div>
+    </div>
+
+    <!-- Decorative knobs -->
+    <div class="knob knob-speed" data-label="33⅓"></div>
+    <div class="knob knob-bass"  data-label="Bass"></div>
+    <div class="knob knob-tone"  data-label="Tone"></div>
+  </div>
+
+  <!-- ═══ CONTROLS ═══ -->
+  <div class="controls">
+    <div class="track-info">
+      <div class="track-title" id="trackTitle">Selecciona una canción</div>
+      <div class="track-artist" id="trackArtist">—</div>
+    </div>
+
+    <div class="progress-wrap" id="progressWrap">
+      <div class="progress-fill" id="progressFill"></div>
+    </div>
+    <div class="progress-times">
+      <span id="curTime">0:00</span>
+      <span id="totTime">0:00</span>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn" id="prevBtn" title="Anterior">⏮</button>
+      <button class="btn btn-play" id="playBtn" title="Reproducir">▶</button>
+      <button class="btn" id="nextBtn" title="Siguiente">⏭</button>
+    </div>
+
+    <div class="vol-row">
+      🔈
+      <input type="range" class="vol" id="volSlider" min="0" max="100" value="80">
+      🔊
+    </div>
+
+    <div class="src-tabs">
+      <button class="src-tab active" data-src="local">📁 Archivos locales</button>
+      <button class="src-tab" data-src="online">🌐 URL online</button>
+    </div>
+
+    <div class="src-pane active" id="paneLocal">
+      <input type="file" id="fileInput" accept="audio/*" multiple style="display:none">
+      <button class="action-btn" onclick="document.getElementById('fileInput').click()">
+        Abrir archivos…
+      </button>
+      <span class="file-lbl" id="fileCountLbl">Sin archivos</span>
+    </div>
+
+    <div class="src-pane" id="paneOnline">
+      <input type="text" class="url-input" id="urlInput"
+             placeholder="URL directa de audio  (mp3, ogg, aac…)">
+      <button class="action-btn" id="loadUrlBtn">Cargar</button>
+    </div>
+
+    <div class="playlist" id="playlist"></div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<audio id="audio"></audio>
+
+<script>
+// ─── State ───────────────────────────────────────────
+const audio       = document.getElementById('audio');
+let   playlist    = [];   // [{name, src, duration}]
+let   currentIdx  = -1;
+let   isPlaying   = false;
+
+// ─── Elements ────────────────────────────────────────
+const vinyl        = document.getElementById('vinyl');
+const tonearm      = document.getElementById('tonearm');
+const led          = document.getElementById('led');
+const cabinet      = document.getElementById('cabinet');
+const playBtn      = document.getElementById('playBtn');
+const prevBtn      = document.getElementById('prevBtn');
+const nextBtn      = document.getElementById('nextBtn');
+const volSlider    = document.getElementById('volSlider');
+const progressWrap = document.getElementById('progressWrap');
+const progressFill = document.getElementById('progressFill');
+const curTimeEl    = document.getElementById('curTime');
+const totTimeEl    = document.getElementById('totTime');
+const trackTitle   = document.getElementById('trackTitle');
+const trackArtist  = document.getElementById('trackArtist');
+const labelTitle   = document.getElementById('labelTitle');
+const fileInput    = document.getElementById('fileInput');
+const fileCountLbl = document.getElementById('fileCountLbl');
+const urlInput     = document.getElementById('urlInput');
+const loadUrlBtn   = document.getElementById('loadUrlBtn');
+const playlistEl   = document.getElementById('playlist');
+const toast        = document.getElementById('toast');
+
+// ─── Utilities ───────────────────────────────────────
+function fmtTime(s) {
+  if (!isFinite(s) || s < 0) return '—';
+  const m  = Math.floor(s / 60);
+  const ss = Math.floor(s % 60).toString().padStart(2, '0');
+  return `${m}:${ss}`;
+}
+
+let toastTimer = null;
+function showToast(msg) {
+  toast.textContent = msg;
+  toast.classList.add('visible');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => toast.classList.remove('visible'), 3500);
+}
+
+// ─── Playback state ──────────────────────────────────
+function setPlaying(state) {
+  isPlaying = state;
+  vinyl.style.animationPlayState = state ? 'running' : 'paused';
+  tonearm.classList.toggle('playing', state);
+  led.classList.toggle('on', state);
+  cabinet.classList.toggle('playing', state);
+  playBtn.textContent = state ? '⏸' : '▶';
+  playBtn.title       = state ? 'Pausar' : 'Reproducir';
+}
+
+// ─── Track info ──────────────────────────────────────
+function updateInfo(item) {
+  if (!item) {
+    trackTitle.textContent  = 'Selecciona una canción';
+    trackArtist.textContent = '—';
+    labelTitle.textContent  = 'Sin pista';
+    return;
+  }
+  const name = item.name.replace(/\.[^.]+$/, '');
+  trackTitle.textContent  = name;
+  trackArtist.textContent = item.artist || 'Pista de audio';
+  labelTitle.textContent  = name;
+}
+
+// ─── Playlist rendering ──────────────────────────────
+function renderPlaylist() {
+  playlistEl.innerHTML = '';
+  playlist.forEach((item, i) => {
+    const d   = document.createElement('div');
+    d.className = 'pl-item' + (i === currentIdx ? ' active' : '');
+    d.innerHTML = `
+      <span class="pl-num">${i + 1}</span>
+      <span class="pl-name">${item.name.replace(/\.[^.]+$/, '')}</span>
+      <span class="pl-dur">${item.duration ? fmtTime(item.duration) : '—'}</span>
+    `;
+    d.addEventListener('click', () => loadTrack(i, true));
+    playlistEl.appendChild(d);
+    if (i === currentIdx) d.scrollIntoView({ block: 'nearest' });
+  });
+}
+
+// ─── Load & play a track ─────────────────────────────
+function loadTrack(idx, autoPlay = true) {
+  if (idx < 0 || idx >= playlist.length) return;
+  currentIdx = idx;
+  const item = playlist[idx];
+
+  audio.src = item.src;
+  audio.load();
+  updateInfo(item);
+  renderPlaylist();
+
+  progressFill.style.transition = 'none';
+  progressFill.style.width = '0%';
+  curTimeEl.textContent = '0:00';
+  totTimeEl.textContent = item.duration ? fmtTime(item.duration) : '—';
+
+  if (autoPlay) {
+    audio.play()
+      .then(() => setPlaying(true))
+      .catch(err => {
+        setPlaying(false);
+        if (err.name !== 'AbortError') showToast('No se pudo reproducir el audio.');
+      });
+  } else {
+    setPlaying(false);
+  }
+}
+
+// ─── Controls ────────────────────────────────────────
+playBtn.addEventListener('click', () => {
+  if (playlist.length === 0) return;
+  if (currentIdx < 0) { loadTrack(0); return; }
+  if (isPlaying) {
+    audio.pause();
+    setPlaying(false);
+  } else {
+    audio.play()
+      .then(() => setPlaying(true))
+      .catch(() => showToast('No se pudo reproducir el audio.'));
+  }
+});
+
+prevBtn.addEventListener('click', () => {
+  if (!playlist.length) return;
+  // If past 3s → restart current, else go to prev
+  if (audio.currentTime > 3) {
+    audio.currentTime = 0;
+  } else {
+    loadTrack(currentIdx <= 0 ? playlist.length - 1 : currentIdx - 1);
+  }
+});
+
+nextBtn.addEventListener('click', () => {
+  if (!playlist.length) return;
+  loadTrack((currentIdx + 1) % playlist.length);
+});
+
+volSlider.addEventListener('input', () => {
+  audio.volume = volSlider.value / 100;
+});
+audio.volume = 0.8;
+
+// ─── Progress bar ────────────────────────────────────
+audio.addEventListener('timeupdate', () => {
+  if (!audio.duration || !isFinite(audio.duration)) return;
+  const pct = (audio.currentTime / audio.duration) * 100;
+  progressFill.style.transition = 'width 0.2s linear';
+  progressFill.style.width = pct + '%';
+  curTimeEl.textContent = fmtTime(audio.currentTime);
+});
+
+audio.addEventListener('loadedmetadata', () => {
+  totTimeEl.textContent = fmtTime(audio.duration);
+  if (currentIdx >= 0 && isFinite(audio.duration)) {
+    playlist[currentIdx].duration = audio.duration;
+    renderPlaylist();
+  }
+});
+
+audio.addEventListener('ended', () => {
+  const next = (currentIdx + 1) % playlist.length;
+  loadTrack(next);
+});
+
+audio.addEventListener('error', () => {
+  setPlaying(false);
+  showToast('Error: no se pudo cargar el audio.');
+});
+
+progressWrap.addEventListener('click', (e) => {
+  if (!audio.duration || !isFinite(audio.duration)) return;
+  const rect = progressWrap.getBoundingClientRect();
+  audio.currentTime = ((e.clientX - rect.left) / rect.width) * audio.duration;
+});
+
+// ─── Local files ─────────────────────────────────────
+fileInput.addEventListener('change', () => {
+  const files = Array.from(fileInput.files);
+  if (!files.length) return;
+
+  // Revoke old blob URLs
+  playlist.forEach(item => {
+    if (item.src.startsWith('blob:')) URL.revokeObjectURL(item.src);
+  });
+
+  playlist = files.map(f => ({
+    name:     f.name,
+    src:      URL.createObjectURL(f),
+    artist:   null,
+    duration: null,
+  }));
+
+  currentIdx = -1;
+  fileCountLbl.textContent = `${files.length} archivo${files.length !== 1 ? 's' : ''}`;
+  renderPlaylist();
+  updateInfo(null);
+  setPlaying(false);
+  audio.src = '';
+  curTimeEl.textContent = '0:00';
+  totTimeEl.textContent = '0:00';
+  progressFill.style.width = '0%';
+
+  // Load first track silently (no autoplay until user presses play)
+  loadTrack(0, false);
+});
+
+// ─── Online URL ──────────────────────────────────────
+function loadUrl() {
+  const url = urlInput.value.trim();
+  if (!url) { showToast('Pega una URL de audio válida.'); return; }
+
+  const parts = url.split('/');
+  const raw   = parts[parts.length - 1].split('?')[0];
+  const name  = decodeURIComponent(raw) || 'Audio online';
+
+  playlist.forEach(item => {
+    if (item.src.startsWith('blob:')) URL.revokeObjectURL(item.src);
+  });
+
+  playlist    = [{ name, src: url, artist: 'Fuente online', duration: null }];
+  currentIdx  = -1;
+  renderPlaylist();
+  loadTrack(0, true);
+}
+loadUrlBtn.addEventListener('click', loadUrl);
+urlInput.addEventListener('keydown', e => { if (e.key === 'Enter') loadUrl(); });
+
+// ─── Source tabs ─────────────────────────────────────
+document.querySelectorAll('.src-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.src-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.src-pane').forEach(p => p.classList.remove('active'));
+    tab.classList.add('active');
+    const id = 'pane' + tab.dataset.src.charAt(0).toUpperCase() + tab.dataset.src.slice(1);
+    document.getElementById(id).classList.add('active');
+  });
+});
+
+// ─── Keyboard shortcuts ──────────────────────────────
+document.addEventListener('keydown', e => {
+  if (e.target.tagName === 'INPUT') return;
+  if (e.code === 'Space') { e.preventDefault(); playBtn.click(); }
+  if (e.code === 'ArrowRight') nextBtn.click();
+  if (e.code === 'ArrowLeft')  prevBtn.click();
+});
+</script>
+</body>
+</html>
