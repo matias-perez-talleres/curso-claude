@@ -222,12 +222,11 @@ body::after {
 }
 
 /* ══════════════════════════════ PLATTER LED RING ══════════════════════════════ */
-/* centered with platter (center = 215,193 in cabinet) */
 .platter-glow {
   position: absolute;
   width: 308px; height: 308px;
   border-radius: 50%;
-  left: 61px; top: 39px;  /* (215-154, 193-154) */
+  left: 61px; top: 39px;
   z-index: 1;
 }
 
@@ -278,7 +277,6 @@ body::after {
     inset 0 0 40px rgba(0,0,0,0.7);
   z-index: 2;
 }
-/* concentric ring grooves on platter mat */
 .platter::before {
   content: '';
   position: absolute; inset: 10px; border-radius: 50%;
@@ -308,7 +306,6 @@ body::after {
   z-index: 3;
 }
 
-/* prismatic sheen over grooves */
 .vinyl::before {
   content: '';
   position: absolute; inset: 0; border-radius: 50%;
@@ -321,7 +318,6 @@ body::after {
   pointer-events: none;
   z-index: 1;
 }
-/* playing groove shimmer */
 .cabinet.playing .vinyl::after {
   content: '';
   position: absolute; inset: 0; border-radius: 50%;
@@ -334,7 +330,6 @@ body::after {
   to { transform: rotate(360deg); }
 }
 
-/* ── Vinyl label ── */
 .vinyl-label {
   position: absolute;
   width: 30%; height: 30%;
@@ -466,7 +461,6 @@ body::after {
 }
 .tonearm.playing { transform: rotate(22deg); }
 
-/* carbon-look arm tube */
 .arm-tube {
   position: absolute;
   left: 50%; top: 0;
@@ -480,7 +474,6 @@ body::after {
     0 0 0 0.5px rgba(0,200,255,0.06);
   overflow: hidden;
 }
-/* carbon weave overlay */
 .arm-tube::before {
   content: '';
   position: absolute; inset: 0;
@@ -599,7 +592,6 @@ body::after {
   position: relative;
 }
 
-/* top divider gradient line */
 .controls::before {
   content: '';
   position: absolute;
@@ -614,7 +606,6 @@ body::after {
   opacity: 0.35;
 }
 
-/* ── Track info ── */
 .track-info {
   text-align: center;
   margin-bottom: 11px;
@@ -640,7 +631,6 @@ body::after {
   text-transform: uppercase;
 }
 
-/* ── Progress bar ── */
 .progress-wrap {
   position: relative;
   height: 3px;
@@ -660,7 +650,6 @@ body::after {
   position: relative;
   box-shadow: 0 0 8px rgba(0,200,255,0.5);
 }
-/* playhead dot */
 .progress-fill::after {
   content: '';
   position: absolute;
@@ -685,7 +674,6 @@ body::after {
   margin-bottom: 12px;
 }
 
-/* ── Playback buttons ── */
 .btn-row {
   display: flex;
   align-items: center;
@@ -744,7 +732,6 @@ body::after {
   transform: scale(1.06);
 }
 
-/* ── Volume ── */
 .vol-row {
   display: flex;
   align-items: center;
@@ -772,7 +759,6 @@ input[type=range].vol::-webkit-slider-thumb {
   border: 1px solid rgba(255,255,255,0.25);
 }
 
-/* ── Source tabs ── */
 .src-tabs {
   display: flex;
   gap: 6px;
@@ -856,7 +842,6 @@ input[type=range].vol::-webkit-slider-thumb {
   color: rgba(0,200,255,0.22);
 }
 
-/* ── Playlist ── */
 .playlist {
   max-height: 110px;
   overflow-y: auto;
@@ -905,7 +890,6 @@ input[type=range].vol::-webkit-slider-thumb {
   font-size: 9.5px;
 }
 
-/* ── Toast ── */
 .toast {
   position: fixed;
   bottom: 28px; left: 50%;
